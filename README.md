@@ -2,78 +2,157 @@
 RANDRIANOMENJANAHARY Stanis Ryan 
 212/lA/24-25
 L1A
-1. Commandes de base
 
-    docker --version : Affiche la version de Docker installée.
+# 📦 Cheat Sheet Docker (avec explication en français)
 
-    docker info : Donne les infos système sur le moteur Docker.
+## 🐳 Docker : Généralités
+Docker est un outil qui a révolutionné le monde de l’infrastructure en permettant la conteneurisation des applications. Il facilite le déploiement, l’automatisation et la livraison des logiciels.
 
-    docker help : Affiche l’aide générale ou spécifique à une commande.
+---
 
-2. Commandes sur les images
+## 🎯 Objectifs de Docker
+- Simplifie les processus de déploiement
+- Change la manière de livrer les applications
+- Gère efficacement les dépendances
 
-    docker pull <image> : Télécharge une image depuis Docker Hub.
+---
 
-    docker build -t <nom_image> . : Construit une image à partir d’un Dockerfile.
+## 🧱 Concepts Clés
 
-    docker images : Liste les images locales.
+### 📄 Image
+Une **image** Docker est une entité inactive contenant :
+- Le code de l'application
+- Ses dépendances
+- Les configurations nécessaires
 
-    docker rmi <image> : Supprime une image Docker.
+### 📦 Conteneur
+Un **conteneur** est une instance d’une image, active, isolée, pouvant exécuter un ou plusieurs processus.
 
-    docker tag <image> <nouveau_nom> : Renomme ou tag une image.
+---
 
-3. Commandes sur les conteneurs
+## 🔧 Commandes de Base
 
-    docker run <image> : Lance un conteneur à partir d’une image.
+| Commande | Description |
+|---------|-------------|
+| `sudo usermod -aG docker $USER` | Ajouter l'utilisateur courant au groupe docker |
+| `docker ps` | Liste les conteneurs actifs |
+| `docker ps -a` | Liste tous les conteneurs (actifs et inactifs) |
+| `docker ps -q` | Affiche les IDs des conteneurs actifs |
+| `docker ps -qa` | Affiche les IDs de tous les conteneurs |
+| `docker run nginx:latest` | Lance l’image nginx |
+| `docker run -d nginx:latest` | Lance nginx en arrière-plan (détaché) |
+| `docker run -d --name c1 nginx:latest` | Lance nginx avec le nom `c1` |
+| `docker rm -f c1` | Supprime le conteneur nommé `c1` |
+| `docker run -ti --name c1 debian:latest` | Lance debian avec terminal interactif |
+| `docker run -ti --rm --name c1 debian:latest` | Comme ci-dessus, mais le conteneur se supprime à la fermeture |
 
-    docker run -it <image> : Lance un conteneur en mode interactif (terminal).
+---
 
-    docker run -d <image> : Lance un conteneur en arrière-plan.
+## 📁 Docker Volume
 
-    docker run --name <nom> <image> : Donne un nom personnalisé au conteneur.
+Les **volumes Docker** permettent de stocker les données en dehors du cycle de vie d’un conteneur.
 
-    docker ps : Liste les conteneurs en cours d’exécution.
+### 🔸 Avantages
+- Persistance des données
+- Partage entre conteneurs
+- Sauvegarde facilitée
+- Gestion des permissions
 
-    docker ps -a : Liste tous les conteneurs, même arrêtés.
+### 📌 Commandes
+| Commande | Description |
+|---------|-------------|
+| `docker volume ls` | Liste tous les volumes |
+| `docker volume create monvolume` | Crée un volume nommé `monvolume` |
+| `docker volume inspect monvolume` | Détaille un volume |
 
-    docker start <nom/id> : Démarre un conteneur arrêté.
+```bash
+docker run -d --name c1 -v monvolume:/usr/share/nginx/html/ nginx:latest
+docker exec -ti c1 bash
+```
 
-    docker stop <nom/id> : Arrête un conteneur actif.
+---
 
-    docker restart <nom/id> : Redémarre un conteneur.
+## 🔗 Bind Mount
 
-    docker rm <nom/id> : Supprime un conteneur arrêté.
+Permet de lier un dossier de l’hôte vers un conteneur.
 
-4. Inspection et journalisation
+```bash
+sudo mkdir /data /data2
+sudo touch /data/Hello
+sudo mount --bind /data/ /data2
+sudo findmnt
+```
 
-    docker logs <nom/id> : Affiche les logs d’un conteneur.
+| Type | Effet |
+|------|-------|
+| **Bind mount** | Écrase les fichiers présents dans l’image par ceux de l’hôte |
+| **Docker volume** | Si vide, récupère les fichiers de l’image |
 
-    docker inspect <nom/id> : Affiche les détails techniques d’un conteneur/image.
+#### Exemple :
+```bash
+docker run -d --name c1 \
+  --mount type=bind,source=/data/,destination=/usr/share/nginx/html/ \
+  nginx:latest
+```
 
-    docker exec -it <nom/id> bash : Ouvre un terminal Bash dans le conteneur.
+---
 
-5. Volumes et ports
+## 🌐 Réseau Docker
 
-    docker run -v <chemin_hôte>:<chemin_conteneur> <image> : Monte un volume local dans le conteneur.
+Les conteneurs peuvent communiquer entre eux via des réseaux Docker.
 
-    docker run -p <port_hôte>:<port_conteneur> <image> : Redirige un port du conteneur vers l’hôte.
+### Réseau par défaut (bridge)
 
-6. Nettoyage du système
+```bash
+docker run --name c1 -d debian sleep infinity
+docker exec -ti c1 bash
+apt install iputils-ping net-tools
+ifconfig
+```
 
-    docker system prune : Supprime tout ce qui n’est pas utilisé (dangereux si mal utilisé).
+### Commandes réseau
 
-    docker image prune : Supprime les images inutilisées.
+| Commande | Description |
+|---------|-------------|
+| `docker network ls` | Liste les réseaux |
+| `docker network create --driver=bridge --subnet=192.168.0.0/24 reseau1` | Crée un réseau personnalisé |
+| `docker network inspect reseau1` | Détaille les infos du réseau |
 
-    docker container prune : Supprime les conteneurs arrêtés.
+#### Connexion de conteneurs à un réseau :
+```bash
+docker run -d --name c1 --network reseau1 nginx:latest
+docker run -d --name c2 --network reseau1 nginx:latest
+docker exec -ti c2 bash
+ping c1
+```
 
-7. Commandes Docker Compose
+---
 
-    docker-compose up : Démarre les services définis dans le docker-compose.yml.
+## 🧰 Dockerfile
 
-    docker-compose up -d : Démarre les services en arrière-plan.
+Un `Dockerfile` est un fichier de configuration permettant de construire une image personnalisée.
 
-    docker-compose down : Arrête et supprime tous les services, réseaux, etc.
+### Principales instructions :
+- `FROM` : base de l’image
+- `RUN` : exécution de commandes
+- `COPY` ou `ADD` : ajout de fichiers
+- `ENV` : variables d’environnement
+- `EXPOSE` : ports
+- `CMD` ou `ENTRYPOINT` : point d’entrée
 
-    docker-compose build : Construit les images des services.
+### Commandes associées :
+```bash
+docker build -t monimage .
+docker images
+docker run -d -p 8080:80 monimage
+docker rmi -f monimage
+```
 
-    docker-compose ps : Liste les conteneurs gérés par Compose.
+---
+
+## 🧱 Docker Layers (couches)
+
+Chaque instruction du Dockerfile crée une couche. Ces couches sont :
+- **Indépendantes**
+- **Mises en cache**
+- **Réutilisables**
