@@ -1,34 +1,32 @@
-# Exmen-Docker
+Exmen-Docker
 RANDRIANOMENJANAHARY Stanis Ryan 
 212/lA/24-25
 L1A
-# 📦 Documentation Docker (en français)
+Documentation Docker (en français)
 
-## 🚀 Introduction à Docker
+Introduction à Docker
 
 **Docker** est un outil incontournable de la conteneurisation, une technique de virtualisation légère qui permet d’exécuter plusieurs applications de façon isolée sur une même machine physique ou virtuelle.
 
-### 🎯 Objectifs de Docker
+Objectifs de Docker
 - Simplifier et automatiser les déploiements
 - Moderniser la livraison des applications
 - Gérer efficacement les dépendances et environnements
+Concepts clés
 
-### 📚 Concepts clés
-
-#### 🧊 Image
+Image
 Une *image Docker* est un modèle figé contenant tout le nécessaire pour faire fonctionner une application :
 - Le code source
 - Les bibliothèques et dépendances
 - Le système de fichiers
 
-#### 📦 Conteneur
+Conteneur
 Un *conteneur Docker* est une instance d’image en cours d’exécution, isolée via les mécanismes `cgroups` et `namespaces`.
 
 ![Conteneur](concept.png)
 
 ---
-
-## 🛠️ Commandes Docker de base
+Commandes Docker de base
 
 ```bash
 sudo usermod -aG docker $USER
