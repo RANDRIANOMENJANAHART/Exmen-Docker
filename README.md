@@ -2,157 +2,60 @@
 RANDRIANOMENJANAHARY Stanis Ryan 
 212/lA/24-25
 L1A
+# 📦 Documentation Docker (en français)
 
-# 📦 Cheat Sheet Docker (avec explication en français)
+## 🚀 Introduction à Docker
 
-## 🐳 Docker : Généralités
-Docker est un outil qui a révolutionné le monde de l’infrastructure en permettant la conteneurisation des applications. Il facilite le déploiement, l’automatisation et la livraison des logiciels.
+**Docker** est un outil incontournable de la conteneurisation, une technique de virtualisation légère qui permet d’exécuter plusieurs applications de façon isolée sur une même machine physique ou virtuelle.
 
----
+### 🎯 Objectifs de Docker
+- Simplifier et automatiser les déploiements
+- Moderniser la livraison des applications
+- Gérer efficacement les dépendances et environnements
 
-## 🎯 Objectifs de Docker
-- Simplifie les processus de déploiement
-- Change la manière de livrer les applications
-- Gère efficacement les dépendances
+### 📚 Concepts clés
 
----
+#### 🧊 Image
+Une *image Docker* est un modèle figé contenant tout le nécessaire pour faire fonctionner une application :
+- Le code source
+- Les bibliothèques et dépendances
+- Le système de fichiers
 
-## 🧱 Concepts Clés
+#### 📦 Conteneur
+Un *conteneur Docker* est une instance d’image en cours d’exécution, isolée via les mécanismes `cgroups` et `namespaces`.
 
-### 📄 Image
-Une **image** Docker est une entité inactive contenant :
-- Le code de l'application
-- Ses dépendances
-- Les configurations nécessaires
-
-### 📦 Conteneur
-Un **conteneur** est une instance d’une image, active, isolée, pouvant exécuter un ou plusieurs processus.
+![Conteneur](concept.png)
 
 ---
 
-## 🔧 Commandes de Base
-
-| Commande | Description |
-|---------|-------------|
-| `sudo usermod -aG docker $USER` | Ajouter l'utilisateur courant au groupe docker |
-| `docker ps` | Liste les conteneurs actifs |
-| `docker ps -a` | Liste tous les conteneurs (actifs et inactifs) |
-| `docker ps -q` | Affiche les IDs des conteneurs actifs |
-| `docker ps -qa` | Affiche les IDs de tous les conteneurs |
-| `docker run nginx:latest` | Lance l’image nginx |
-| `docker run -d nginx:latest` | Lance nginx en arrière-plan (détaché) |
-| `docker run -d --name c1 nginx:latest` | Lance nginx avec le nom `c1` |
-| `docker rm -f c1` | Supprime le conteneur nommé `c1` |
-| `docker run -ti --name c1 debian:latest` | Lance debian avec terminal interactif |
-| `docker run -ti --rm --name c1 debian:latest` | Comme ci-dessus, mais le conteneur se supprime à la fermeture |
-
----
-
-## 📁 Docker Volume
-
-Les **volumes Docker** permettent de stocker les données en dehors du cycle de vie d’un conteneur.
-
-### 🔸 Avantages
-- Persistance des données
-- Partage entre conteneurs
-- Sauvegarde facilitée
-- Gestion des permissions
-
-### 📌 Commandes
-| Commande | Description |
-|---------|-------------|
-| `docker volume ls` | Liste tous les volumes |
-| `docker volume create monvolume` | Crée un volume nommé `monvolume` |
-| `docker volume inspect monvolume` | Détaille un volume |
+## 🛠️ Commandes Docker de base
 
 ```bash
-docker run -d --name c1 -v monvolume:/usr/share/nginx/html/ nginx:latest
-docker exec -ti c1 bash
-```
+sudo usermod -aG docker $USER
 
----
+    Ajoute l'utilisateur actuel au groupe docker, afin de ne plus avoir à utiliser sudo pour les commandes Docker.
 
-## 🔗 Bind Mount
+docker ps
 
-Permet de lier un dossier de l’hôte vers un conteneur.
+    Affiche la liste des conteneurs actuellement en cours d’exécution.
 
-```bash
-sudo mkdir /data /data2
-sudo touch /data/Hello
-sudo mount --bind /data/ /data2
-sudo findmnt
-```
+docker ps -a
 
-| Type | Effet |
-|------|-------|
-| **Bind mount** | Écrase les fichiers présents dans l’image par ceux de l’hôte |
-| **Docker volume** | Si vide, récupère les fichiers de l’image |
+    Affiche tous les conteneurs, qu’ils soient actifs ou arrêtés.
 
-#### Exemple :
-```bash
-docker run -d --name c1 \
-  --mount type=bind,source=/data/,destination=/usr/share/nginx/html/ \
-  nginx:latest
-```
+docker ps -q
 
----
+    Affiche uniquement les identifiants (ID) des conteneurs actifs.
 
-## 🌐 Réseau Docker
+docker run nginx:latest
 
-Les conteneurs peuvent communiquer entre eux via des réseaux Docker.
+    Télécharge (si nécessaire) puis lance un conteneur basé sur l’image nginx:latest.
 
-### Réseau par défaut (bridge)
+docker run -d --name c1 nginx:latest
 
-```bash
-docker run --name c1 -d debian sleep infinity
-docker exec -ti c1 bash
-apt install iputils-ping net-tools
-ifconfig
-```
+    Démarre le conteneur Nginx nommé c1 en arrière-plan (mode détaché).
 
-### Commandes réseau
+docker rm -f c1
 
-| Commande | Description |
-|---------|-------------|
-| `docker network ls` | Liste les réseaux |
-| `docker network create --driver=bridge --subnet=192.168.0.0/24 reseau1` | Crée un réseau personnalisé |
-| `docker network inspect reseau1` | Détaille les infos du réseau |
+    Supprime le conteneur c1, même s’il est encore en cours d’exécution.
 
-#### Connexion de conteneurs à un réseau :
-```bash
-docker run -d --name c1 --network reseau1 nginx:latest
-docker run -d --name c2 --network reseau1 nginx:latest
-docker exec -ti c2 bash
-ping c1
-```
-
----
-
-## 🧰 Dockerfile
-
-Un `Dockerfile` est un fichier de configuration permettant de construire une image personnalisée.
-
-### Principales instructions :
-- `FROM` : base de l’image
-- `RUN` : exécution de commandes
-- `COPY` ou `ADD` : ajout de fichiers
-- `ENV` : variables d’environnement
-- `EXPOSE` : ports
-- `CMD` ou `ENTRYPOINT` : point d’entrée
-
-### Commandes associées :
-```bash
-docker build -t monimage .
-docker images
-docker run -d -p 8080:80 monimage
-docker rmi -f monimage
-```
-
----
-
-## 🧱 Docker Layers (couches)
-
-Chaque instruction du Dockerfile crée une couche. Ces couches sont :
-- **Indépendantes**
-- **Mises en cache**
-- **Réutilisables**
